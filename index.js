@@ -21,6 +21,7 @@ let notas = [
 
 ]
 
+//raiz de la app
 app.get('/', (require, res) => {
   res.send("<h1>Hola mundo</h1>")
 })
@@ -29,7 +30,7 @@ app.get('/api/notas', (require, res) => {
   res.json(notas)
 })
 
-const PORT = 3000
+const PORT = 3001
 app.listen(PORT, () => {
   console.log(`corriendo el puerto ${PORT}`)
 })
