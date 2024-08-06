@@ -25,6 +25,11 @@ let notas = [
 app.get('/', (require, res) => {
   res.send("<h1>Hola mundo</h1>")
 })
+ 
+//obtencion de notas
+app.get('/api/notas', (request, res) => {
+  res.json(notas)
+})
 
 
 app.get('/api/notas/:id', (request, res) => { 
@@ -36,6 +41,14 @@ app.get('/api/notas/:id', (request, res) => {
   } else {
     res.status(404).end()
   }
+})
+
+// eliminar Nota
+app.delete('/api/notas/:id', (request, res) => { 
+  const id = Number(request.params.id)
+  notas = notas.filter(nota => nota.id !== id)
+
+  res.status(204).end()
 })
  
 const PORT = 3001
