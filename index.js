@@ -1,11 +1,12 @@
 const express = require('express')
-
 const app = express()
+
+app.use(express.json())
 
 let notas = [
   {
     id: 1,
-    contenido: "HTML es facil",
+    contenido: "HTML es fácil",
     import: true
   },
   {
@@ -50,6 +51,14 @@ app.delete('/api/notas/:id', (request, res) => {
 
   res.status(204).end()
 })
+
+//recibir información
+app.post('/api/notas', (request, res) => {
+  const nota = request.body
+  console.log(nota)
+  res.json(nota)
+})
+
  
 const PORT = 3001
 app.listen(PORT, () => {
