@@ -32,12 +32,12 @@ let notas = [
   },
 ];
 
-//raiz de la app
+//raíz de la app
 app.get('/', (require, res) => {
   res.send('<h1>Hola mundo</h1>');
 });
 
-//obtencion de notas
+//obtención de notas
 app.get('/api/notas', (request, res) => {
   res.json(notas);
 });
@@ -84,6 +84,11 @@ app.post('/api/notas', (request, res) => {
 
   res.json(nota);
 });
+
+const puntoDesconocido = (request, response) => {
+  response.status(404).send({ error: 'punto desconocido' });
+};
+app.use(puntoDesconocido);
 
 const PORT = 3001;
 app.listen(PORT, () => {
