@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express();
-const cors = require('cors')
+const cors = require('cors');
 
 app.use(express.json());
-app.use(cors())
-
+app.use(express.static('dist'));
+app.use(cors());
 
 let notas = [
   {
@@ -68,9 +68,9 @@ app.post('/api/notas', (request, res) => {
   }
 
   const nota = {
-    contenido: body.contenido,                    //generar el contenido y por la lógica lo hace obligatorio
-    important: Boolean(body.important) || false,  //generar false por defect
-    id: generarId(),                              //generar el id 
+    contenido: body.contenido, //generar el contenido y por la lógica lo hace obligatorio
+    important: Boolean(body.important) || false, //generar false por defect
+    id: generarId(), //generar el id
   };
   notas = notas.concat(nota);
 
@@ -82,7 +82,7 @@ const puntoDesconocido = (request, response) => {
 };
 app.use(puntoDesconocido);
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`corriendo el puerto ${PORT}`);
 });
