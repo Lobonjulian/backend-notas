@@ -29,13 +29,13 @@ app.get('/', (require, res) => {
 
 app.get('/api/notas/:id', (request, res) => { 
   const id =Number(request.params.id)
-  console.log(id)
-  const nota = notas.find(nota => {
-    console.log(nota.id, typeof nota.id , id, typeof id, nota.id === id)
-    return nota.id === id
-  } )
-  console.log(nota)
-  res.json(nota)
+  const nota = notas.find(nota =>  nota.id === id)
+
+  if (nota) {
+    res.json(nota)
+  } else {
+    res.status(404).end()
+  }
 })
  
 const PORT = 3001
