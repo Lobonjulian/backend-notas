@@ -54,8 +54,15 @@ app.delete('/api/notas/:id', (request, res) => {
 
 //recibir información
 app.post('/api/notas', (request, res) => {
+  const maxId = notas.length > 0
+    ? Math.max(...notas.map(n => n.id))
+    : 0
+
   const nota = request.body
-  console.log(nota)
+  nota.id = maxId +1
+
+  notas = notas.concat(nota)
+  
   res.json(nota)
 })
 
