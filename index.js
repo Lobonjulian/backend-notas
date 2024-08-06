@@ -3,6 +3,17 @@ const app = express();
 
 app.use(express.json());
 
+const requestLogger = (request, response, next) => {
+  console.log('Metodo:', request.method);
+  console.log('Path:  ', request.path);
+  console.log('Body:  ', request.body);
+  console.log('---');
+  next();
+}
+
+// uso de el middleware
+app.use(requestLogger);
+
 let notas = [
   {
     id: 1,
@@ -58,16 +69,16 @@ const generarId = () => {
 
 app.post('/api/notas', (request, res) => {
   const body = request.body;
-  if (!body.content) {
+  if (!body.contenido) {
     return res.status(400).json({
       error: 'El contenido es obligatorio',
     });
   }
 
   const nota = {
-    contenido: body.content,
-    important: Boolean(body.important) || false,
-    id: generarId(),
+    contenido: body.contenido,                    //generar el contenido y por la lógica lo hace obligatorio
+    important: Boolean(body.important) || false,  //generar false por defect
+    id: generarId(),                              //generar el id 
   };
   notas = notas.concat(nota);
 
