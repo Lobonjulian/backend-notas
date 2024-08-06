@@ -1,18 +1,10 @@
 const express = require('express');
 const app = express();
+const cors = require('cors')
 
 app.use(express.json());
+app.use(cors())
 
-const requestLogger = (request, response, next) => {
-  console.log('Metodo:', request.method);
-  console.log('Path:  ', request.path);
-  console.log('Body:  ', request.body);
-  console.log('---');
-  next();
-}
-
-// uso de el middleware
-app.use(requestLogger);
 
 let notas = [
   {
@@ -90,7 +82,7 @@ const puntoDesconocido = (request, response) => {
 };
 app.use(puntoDesconocido);
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`corriendo el puerto ${PORT}`);
 });
