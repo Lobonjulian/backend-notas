@@ -2,10 +2,6 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 
-app.use(express.json());
-app.use(express.static('dist'));
-app.use(cors());
-
 let notas = [
   {
     id: 1,
@@ -24,9 +20,14 @@ let notas = [
   },
 ];
 
+// middleware
+app.use(express.json());
+app.use(express.static('dist'));
+app.use(cors());
+
 //raíz de la app
 app.get('/', (require, res) => {
-  res.send('<h1>Hola mundo</h1>');
+  res.send('<h1>Notas</h1>');
 });
 
 //obtención de notas
@@ -80,6 +81,7 @@ app.post('/api/notas', (request, res) => {
 const puntoDesconocido = (request, response) => {
   response.status(404).send({ error: 'punto desconocido' });
 };
+
 app.use(puntoDesconocido);
 
 const PORT = process.env.PORT || 3001;
