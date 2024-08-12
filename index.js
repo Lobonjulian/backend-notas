@@ -1,24 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
-const mongoose = require('mongoose');
-
 const cors = require('cors');
 
-const password = process.argv[2];
-
-const url = process.argv[3];
-
-mongoose.set('strictQuery', false);
-
-mongoose.connect(url);
-
-const notaSchema = new mongoose.Schema({
-  contenido: String,
-  important: Boolean,
-});
-
-const Nota = mongoose.model('Nota', notaSchema);
-
+const Nota = require('./models/notas');
 let notas = [
   {
     id: 1,
@@ -50,19 +35,14 @@ app.get('/', (require, res) => {
 //obtención de notas
 app.get('/api/notas', (request, res) => {
   Nota.find({}).then((notas) => {
-    res.json(notas)
+    res.json(notas);
   });
 });
 
 app.get('/api/notas/:id', (request, res) => {
-  const id = Number(request.params.id);
-  const nota = notas.find((nota) => nota.id === id);
-
-  if (nota) {
+  Nota.findById(request.params.id).then((nota) => {
     res.json(nota);
-  } else {
-    res.status(404).end();
-  }
+  });
 });
 
 // eliminar Nota
@@ -81,20 +61,21 @@ const generarId = () => {
 
 app.post('/api/notas', (request, res) => {
   const body = request.body;
-  if (!body.contenido) {
+
+  if (body.contenido === undefined) {
     return res.status(400).json({
       error: 'El contenido es obligatorio',
     });
   }
 
-  const nota = {
+  const nota = new Nota({
     contenido: body.contenido, //generar el contenido y por la lógica lo hace obligatorio
-    important: Boolean(body.important) || false, //generar false por defect
-    id: generarId(), //generar el id
-  };
-  notas = notas.concat(nota);
+    important: body.important || false, //generar false por defect
+  });
 
-  res.json(nota);
+  nota.save().then((saveNota) => {
+    res.json(saveNota);
+  });
 });
 
 const puntoDesconocido = (request, response) => {
@@ -103,7 +84,7 @@ const puntoDesconocido = (request, response) => {
 
 app.use(puntoDesconocido);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`corriendo el puerto ${PORT}`);
 });
