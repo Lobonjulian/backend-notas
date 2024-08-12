@@ -1,6 +1,23 @@
 const express = require('express');
 const app = express();
+const mongoose = require('mongoose');
+
 const cors = require('cors');
+
+const password = process.argv[2];
+
+const url = process.argv[3];
+
+mongoose.set('strictQuery', false);
+
+mongoose.connect(url);
+
+const notaSchema = new mongoose.Schema({
+  contenido: String,
+  important: Boolean,
+});
+
+const Nota = mongoose.model('Nota', notaSchema);
 
 let notas = [
   {
@@ -32,7 +49,9 @@ app.get('/', (require, res) => {
 
 //obtención de notas
 app.get('/api/notas', (request, res) => {
-  res.json(notas);
+  Nota.find({}).then((notas) => {
+    res.json(notas)
+  });
 });
 
 app.get('/api/notas/:id', (request, res) => {

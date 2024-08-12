@@ -5,9 +5,9 @@ if (process.argv.length < 3) {
   process.exit(1);
 }
 
-const password = 527;
+const password = process.arg[2];
 
-const url = `mongodb+srv://julitolos6:${password}@cluster0.krs4t.mongodb.net/notaApp?retryWrites=true&w=majority`;
+const url = process.argv[3];
 
 mongoose.set('strictQuery', false);
 
