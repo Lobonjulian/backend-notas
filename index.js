@@ -39,7 +39,7 @@ app.get('/api/notas', (request, res) => {
   });
 });
 
-app.get('/api/notas/:id', (request, res) => {
+app.get('/api/notas/:id', (request, res, next) => {
   Nota.findById(request.params.id)
     .then((nota) => {
       if (nota) {
@@ -48,10 +48,7 @@ app.get('/api/notas/:id', (request, res) => {
         res.status(404).end();
       }
     })
-    .catch((error) => {
-      console.log(error);
-      res.status(400).send({ error: 'malformatted id' });
-    });
+    .catch((error) => next(error));
 });
 
 // eliminar Nota
@@ -92,6 +89,17 @@ const puntoDesconocido = (request, response) => {
 };
 
 app.use(puntoDesconocido);
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'id invalido' });
+  }
+  next(error);
+};
+
+app.use(errorHandler);// este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
