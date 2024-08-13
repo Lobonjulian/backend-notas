@@ -79,14 +79,9 @@ app.delete('/api/notas/:id', (request, res, next) => {
 
 //actualizar Nota
 app.put('/api/notas/:id', (request, res, next) => {
-  const body = request.body;
+  const { contenido, important } = request.body;
 
-  const nota = {
-    contenido: body.contenido,
-    important: body.important,
-  };
-
-  Nota.findByIdAndUpdate(request.params.id, nota, { new: true })
+  Nota.findByIdAndUpdate(request.params.id, { contenido, important }, { new: true, runValidators: true, context: 'query' })
     .then((updatedNota) => {
       res.json(updatedNota);
     })
