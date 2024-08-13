@@ -18,7 +18,7 @@ const errorHandler = (error, request, response, next) => {
 const cors = require('cors');
 app.use(express.json());
 app.use(cors());
-app.use(logger); // request.body es undefined
+// app.use(logger); // request.body es undefined
 
 const puntoDesconocido = (request, response) => {
   response.status(404).send({ error: 'punto desconocido' });
@@ -48,14 +48,6 @@ app.get('/api/notas/:id', (request, res, next) => {
     .catch((error) => next(error));
 });
 
-// eliminar Nota
-app.delete('/api/notas/:id', (request, res) => {
-  const id = Number(request.params.id);
-  notas = notas.filter((nota) => nota.id !== id);
-
-  res.status(204).end();
-});
-
 app.post('/api/notas', (request, res) => {
   // request.body es undefined
   const body = request.body;
@@ -75,6 +67,31 @@ app.post('/api/notas', (request, res) => {
     res.json(saveNota);
   });
 });
+
+// eliminar Nota
+app.delete('/api/notas/:id', (request, res, next) => {
+  Nota.findByIdAndDelete(request.params.id)
+  .then((result) => {
+    res.status(204).end();
+  })
+  .catch((error) => next(error));
+});
+
+//actualizar Nota
+app.put('/api/notas/:id', (request, res, next) => {
+  const body = request.body
+
+  const nota = {
+    contenido: body.contenido,
+    important: body.important 
+  }
+
+  Nota.findByIdAndUpdate(request.params.id, nota, { new: true })
+  .then((updatedNota) => {
+    res.json(updatedNota)
+  })
+  .catch(error => next(error))
+})
 
 //controlador de solicitudes de endpoints desconocidos
 app.use(puntoDesconocido);
