@@ -40,9 +40,18 @@ app.get('/api/notas', (request, res) => {
 });
 
 app.get('/api/notas/:id', (request, res) => {
-  Nota.findById(request.params.id).then((nota) => {
-    res.json(nota);
-  });
+  Nota.findById(request.params.id)
+    .then((nota) => {
+      if (nota) {
+        res.json(nota);
+      } else {
+        res.status(404).end();
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(400).send({ error: 'malformatted id' });
+    });
 });
 
 // eliminar Nota
