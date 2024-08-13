@@ -1,31 +1,28 @@
-require('dotenv').config();
 const express = require('express');
 const app = express();
-const cors = require('cors');
+require('dotenv').config();
 
 const Nota = require('./models/notas');
-let notas = [
-  {
-    id: 1,
-    contenido: 'HTML es fácil',
-    important: true,
-  },
-  {
-    id: 2,
-    contenido: 'los Navegadores solo ejecutan JavaScript',
-    important: false,
-  },
-  {
-    id: 3,
-    contenido: 'GET y POST son los mejores peticiones HTTP',
-    important: true,
-  },
-];
 
-// middleware
-app.use(express.json());
 app.use(express.static('dist'));
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'id invalido' });
+  }
+  next(error);
+};
+
+const cors = require('cors');
+app.use(express.json());
 app.use(cors());
+app.use(logger); // request.body es undefined
+
+const puntoDesconocido = (request, response) => {
+  response.status(404).send({ error: 'punto desconocido' });
+};
 
 //raíz de la app
 app.get('/', (require, res) => {
@@ -59,13 +56,8 @@ app.delete('/api/notas/:id', (request, res) => {
   res.status(204).end();
 });
 
-//recibir información
-const generarId = () => {
-  const maxId = notas.length > 0 ? Math.max(...notas.map((n) => n.id)) : 0;
-  return maxId + 1;
-};
-
 app.post('/api/notas', (request, res) => {
+  // request.body es undefined
   const body = request.body;
 
   if (body.contenido === undefined) {
@@ -84,22 +76,11 @@ app.post('/api/notas', (request, res) => {
   });
 });
 
-const puntoDesconocido = (request, response) => {
-  response.status(404).send({ error: 'punto desconocido' });
-};
-
+//controlador de solicitudes de endpoints desconocidos
 app.use(puntoDesconocido);
 
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'id invalido' });
-  }
-  next(error);
-};
-
-app.use(errorHandler);// este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
+//controlador de solicitudes de error
+app.use(errorHandler); // este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
