@@ -15,7 +15,11 @@ mongoose
   });
 
 const notaSchema = new mongoose.Schema({
-  contenido: String,
+  contenido: {
+    type: String,
+    minlength: 5,
+    required: true,
+  },
   important: Boolean,
 });
 

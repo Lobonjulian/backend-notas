@@ -11,7 +11,10 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'id invalido' });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).send({ error: error.message });
   }
+
   next(error);
 };
 
@@ -48,50 +51,47 @@ app.get('/api/notas/:id', (request, res, next) => {
     .catch((error) => next(error));
 });
 
-app.post('/api/notas', (request, res) => {
+app.post('/api/notas', (request, res, next) => {
   // request.body es undefined
   const body = request.body;
-
-  if (body.contenido === undefined) {
-    return res.status(400).json({
-      error: 'El contenido es obligatorio',
-    });
-  }
 
   const nota = new Nota({
     contenido: body.contenido, //generar el contenido y por la lógica lo hace obligatorio
     important: body.important || false, //generar false por defect
   });
 
-  nota.save().then((saveNota) => {
-    res.json(saveNota);
-  });
+  nota
+    .save()
+    .then((saveNota) => {
+      res.json(saveNota);
+    })
+    .catch((error) => next(error));
 });
 
 // eliminar Nota
 app.delete('/api/notas/:id', (request, res, next) => {
   Nota.findByIdAndDelete(request.params.id)
-  .then((result) => {
-    res.status(204).end();
-  })
-  .catch((error) => next(error));
+    .then((result) => {
+      res.status(204).end();
+    })
+    .catch((error) => next(error));
 });
 
 //actualizar Nota
 app.put('/api/notas/:id', (request, res, next) => {
-  const body = request.body
+  const body = request.body;
 
   const nota = {
     contenido: body.contenido,
-    important: body.important 
-  }
+    important: body.important,
+  };
 
   Nota.findByIdAndUpdate(request.params.id, nota, { new: true })
-  .then((updatedNota) => {
-    res.json(updatedNota)
-  })
-  .catch(error => next(error))
-})
+    .then((updatedNota) => {
+      res.json(updatedNota);
+    })
+    .catch((error) => next(error));
+});
 
 //controlador de solicitudes de endpoints desconocidos
 app.use(puntoDesconocido);
