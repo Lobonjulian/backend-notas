@@ -72,6 +72,37 @@ test('no se agrega nota sin contenido'), async () => {
   assert.strictEqual(notasFin.length, helper.initialNotas.length)
 }
 
+test('se puede ver una nota especifica', async () => {
+  const notasAtStart = await helper.notasInDb()
+
+  const notaToView = notasAtStart[0]
+
+  const resultNota = await api
+    .get(`/api/notas/${notaToView.id}`)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  assert.deepStrictEqual(resultNota.body, notaToView)
+})
+
+test('se puede eliminar una nota', async () => {
+  const notasAtStart = await helper.notasInDb()
+  const notaToDelete = notasAtStart[0]
+
+  await api
+    .delete(`/api/notas/${notaToDelete.id}`)
+    .expect(204)
+
+  const notasFin = await helper.notasInDb()
+
+  const contenido = notasFin.map(r => r.contenido)
+  assert(!contenido.includes(notaToDelete.contenido))
+
+  assert.strictEqual(notasFin.length, helper.initialNotas.length - 1)
+})
+
+
+
 after(async () => {
   await mongoose.connection.close()
 })
