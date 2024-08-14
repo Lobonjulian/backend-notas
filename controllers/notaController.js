@@ -28,7 +28,7 @@ notasRouter.post('/', (request, res, next) => {
 
   nota.save()
     .then((saveNota) => {
-      res.json(saveNota)
+      res.status(201).json(saveNota)
     })
     .catch((error) => next(error))
 })

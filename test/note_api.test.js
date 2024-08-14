@@ -35,12 +35,31 @@ test('las notas se devuelven como Json', async () => {
     .expect('Content-Type', /application\/json/)
 })
 
-test('la primera nota es sobre los metodos HTTP', async () => {
+test('la primera nota es sobre los métodos HTTP', async () => {
   const response = await api.get('/api/notas')
 
   const contents = response.body.map(e => e.contenido)
   assert.strictEqual(contents.includes('HTML es facil'), true)
 })
+
+test('se puede agregar una nota valida'), async () => {
+  const newNota = {
+    contenido: 'async/await simplifica el manejo de promesas',
+    important: true,
+  }
+
+  await api.post('/api/notas')
+    .send(newNota)
+    .expect(201)
+    .expect('Content-T  ype', /application\/json/)
+
+  const response = await api.get('/api/notas')
+
+  const contenido = response.body.map(r => r.contenido)
+
+  assert.strictEqual(response.body.length, initialNotas.length + 1)
+  assert(contenido.includes('async/await simplifica el manejo de promesas'))
+}
 
 after(async () => {
   await mongoose.connection.close()
