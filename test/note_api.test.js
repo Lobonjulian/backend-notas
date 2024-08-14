@@ -2,30 +2,21 @@ const { test, after, beforeEach } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const assert = require('node:assert')
+const helper = require('./test_helper')
 const app = require('../app')
-const Nota = require('../models/notas')
-
 const api = supertest(app)
 
-const initialNotas = [
-  {
-    contenido: 'HTML es facil',
-    important: false,
-  },
-  {
-    contenido: 'los navegadores son para JavaScript',
-    important: true,
-  }
-]
+const Nota = require('../models/notas')
 
 beforeEach(async () => {
   await Nota.deleteMany({})
 
-  let notaObject = new Nota(initialNotas[0])
+  let notaObject = new Nota(helper.initialNotas[0])
   await notaObject.save()
 
-  notaObject = new Nota(initialNotas[1])
+  notaObject = new Nota(helper.initialNotas[1])
   await notaObject.save()
+
 })
 
 test('las notas se devuelven como Json', async () => {
@@ -33,6 +24,12 @@ test('las notas se devuelven como Json', async () => {
     .get('/api/notas')
     .expect(200)
     .expect('Content-Type', /application\/json/)
+})
+
+test('todas las notas retornadas', async () => {
+  const response = await api.get('/api/notas')
+
+  assert.strictEqual(response.body, helper.initialNotas)
 })
 
 test('la primera nota es sobre los métodos HTTP', async () => {
@@ -53,11 +50,11 @@ test('se puede agregar una nota valida'), async () => {
     .expect(201)
     .expect('Content-T  ype', /application\/json/)
 
-  const response = await api.get('/api/notas')
+  const notasFin = await helper.notasInDb()
+  assert.strictEqual(notasFin.length, helper.initialNotas.length + 1)
 
-  const contenido = response.body.map(r => r.contenido)
+  const contenido = notasFin.map(r => r.contenido)
 
-  assert.strictEqual(response.body.length, initialNotas.length + 1)
   assert(contenido.includes('async/await simplifica el manejo de promesas'))
 }
 
@@ -70,9 +67,9 @@ test('no se agrega nota sin contenido'), async () => {
     .send(newNota)
     .expect(400)
 
-  const res = await api.get('/api/notas')
+  const notasFin = await helper.notasInDb()
 
-  assert.strictEqual(res.body.length, initialNotas.length)
+  assert.strictEqual(notasFin.length, helper.initialNotas.length)
 }
 
 after(async () => {
