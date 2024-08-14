@@ -10,13 +10,8 @@ const Nota = require('../models/notas')
 
 beforeEach(async () => {
   await Nota.deleteMany({})
-  console.log('limpiando')
-  helper.initialNotas.forEach(async (nota) => {
-    let notaObject = new Nota(nota)
-    await notaObject.save()
-    console.log('guardando')
-  })
-  console.log('realizado')
+
+  await Nota.insertMany(helper.initialNotas)
 })
 
 test('las notas se devuelven como Json', async () => {
@@ -26,12 +21,6 @@ test('las notas se devuelven como Json', async () => {
     .expect('Content-Type', /application\/json/)
 })
 
-test('todas las notas retornadas', async () => {
-  const response = await api.get('/api/notas')
-
-  assert.strictEqual(response.body, helper.initialNotas)
-})
-
 test('la primera nota es sobre los métodos HTTP', async () => {
   const response = await api.get('/api/notas')
 
@@ -39,41 +28,44 @@ test('la primera nota es sobre los métodos HTTP', async () => {
   assert.strictEqual(contents.includes('HTML es facil'), true)
 })
 
-test('se puede agregar una nota valida'), async () => {
+test('se puede agregar una nota valida', async () => {
   const newNota = {
     contenido: 'async/await simplifica el manejo de promesas',
     important: true,
   }
 
-  await api.post('/api/notas')
+  await api
+    .post('/api/notas')
     .send(newNota)
     .expect(201)
-    .expect('Content-T  ype', /application\/json/)
+    .expect('Content-Type', /application\/json/)
 
-  const notasFin = await helper.notasInDb()
-  assert.strictEqual(notasFin.length, helper.initialNotas.length + 1)
+  const response = await api.get('/api/notas')
 
-  const contenido = notasFin.map(r => r.contenido)
+  const contenido = response.body.map(r => r.contenido)
+
+  assert.strictEqual(response.body.length, helper.initialNotas.length + 1)
 
   assert(contenido.includes('async/await simplifica el manejo de promesas'))
-}
+})
 
-test('no se agrega nota sin contenido'), async () => {
+test('no se agrega nota sin contenido', async () => {
   const newNota = {
     important : true
   }
 
-  await api.post('/api/notas')
+  await api
+    .post('/api/notas')
     .send(newNota)
     .expect(400)
 
-  const notasFin = await helper.notasInDb()
+  const response = await api.get('/api/notas')
 
-  assert.strictEqual(notasFin.length, helper.initialNotas.length)
-}
+  assert.strictEqual(response.body.length, helper.initialNotas.length)
+})
 
 test('se puede ver una nota especifica', async () => {
-  const notasAtStart = await helper.notasInDb()
+  const notasAtStart = await helper.notaIdDb()
 
   const notaToView = notasAtStart[0]
 
@@ -86,22 +78,20 @@ test('se puede ver una nota especifica', async () => {
 })
 
 test('se puede eliminar una nota', async () => {
-  const notasAtStart = await helper.notasInDb()
+  const notasAtStart = await helper.notaIdDb()
   const notaToDelete = notasAtStart[0]
 
   await api
     .delete(`/api/notas/${notaToDelete.id}`)
     .expect(204)
 
-  const notasFin = await helper.notasInDb()
+  const notasFin = await helper.notaIdDb()
 
   const contenido = notasFin.map(r => r.contenido)
   assert(!contenido.includes(notaToDelete.contenido))
 
   assert.strictEqual(notasFin.length, helper.initialNotas.length - 1)
 })
-
-
 
 after(async () => {
   await mongoose.connection.close()
