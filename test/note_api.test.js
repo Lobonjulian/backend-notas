@@ -18,6 +18,15 @@ const initialNotas = [
   }
 ]
 
+beforeEach(async () => {
+  await Nota.deleteMany({})
+
+  let notaObject = new Nota(initialNotas[0])
+  await notaObject.save()
+
+  notaObject = new Nota(initialNotas[1])
+  await notaObject.save()
+})
 
 test('las notas se devuelven como Json', async () => {
   await api
@@ -31,15 +40,6 @@ test('la primera nota es sobre los metodos HTTP', async () => {
 
   const contents = response.body.map(e => e.contenido)
   assert.strictEqual(contents.includes('HTML es facil'), true)
-})
-
-
-beforeEach(async () => {
-  await Nota.deleteMany({})
-  let notaObject = new Nota(initialNotas[0])
-  await notaObject.save()
-  notaObject = new Nota(initialNotas[1])
-  await notaObject.save()
 })
 
 after(async () => {
