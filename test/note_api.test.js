@@ -10,13 +10,13 @@ const Nota = require('../models/notas')
 
 beforeEach(async () => {
   await Nota.deleteMany({})
-
-  let notaObject = new Nota(helper.initialNotas[0])
-  await notaObject.save()
-
-  notaObject = new Nota(helper.initialNotas[1])
-  await notaObject.save()
-
+  console.log('limpiando')
+  helper.initialNotas.forEach(async (nota) => {
+    let notaObject = new Nota(nota)
+    await notaObject.save()
+    console.log('guardando')
+  })
+  console.log('realizado')
 })
 
 test('las notas se devuelven como Json', async () => {
