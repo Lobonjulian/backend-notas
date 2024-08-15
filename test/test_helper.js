@@ -1,4 +1,5 @@
 const Nota = require('../models/notas')
+const User = require('../models/usuario')
 
 const initialNotas = [
   {
@@ -10,7 +11,6 @@ const initialNotas = [
     important: true,
   }
 ]
-
 const noExisteId = async () => {
   const nota = new Nota({
     contenido: 'HTML es fácil'
@@ -21,9 +21,14 @@ const noExisteId = async () => {
   return nota._id.toString()
 }
 
-const notaIdDb = async () => {
+const notaInDb = async () => {
   const notas = await Nota.find({})
   return notas.map(nota => nota.toJSON())
 }
 
-module.exports = { initialNotas, noExisteId, notaIdDb }
+const usersInDb = async () => {
+  const users = await User.find({})
+  return users.map(user => user.toJSON())
+}
+
+module.exports = { initialNotas, noExisteId, notaInDb, usersInDb }
