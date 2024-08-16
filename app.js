@@ -5,6 +5,7 @@ require('express-async-errors')
 const cors = require('cors')
 const notasRouter = require('./controllers/notaController')
 const usersRouter = require('./controllers/usuarioController')
+const loginRouter = require('./controllers/loginController')
 
 const middleware = require('./utils/middleware')
 const logger = require('./utils/logger')
@@ -28,7 +29,8 @@ app.use(express.json())
 app.use(middleware.requestLogger)
 
 app.use('/api/notas', notasRouter)
-app.use('/api/users',usersRouter)
+app.use('/api/users', usersRouter)
+app.use('/api/login', loginRouter)
 
 app.use(middleware.puntoDesconocido)
 app.use(middleware.errorHandler) // este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
