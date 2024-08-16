@@ -1,6 +1,15 @@
+const jwt = require('jsonwebtoken')
 const notasRouter = require('express').Router()
 const Nota = require('../models/notas')
 const User = require('../models/usuario')
+
+const getTokenFrom = request => {
+  const autorizar = request.get('authorization')
+  if (autorizar && autorizar.startsWith('bearer ')) {
+    return autorizar.replace('bearer ', '')
+  }
+  return null
+}
 
 notasRouter.get('/', async (request, response) => {
   const notas = await Nota.find({}).populate('user', { username: 1, name: 1 })
@@ -20,7 +29,12 @@ notasRouter.get('/:id', async (request, res) => {
 notasRouter.post('/', async (request, res) => {
   const body = request.body
 
-  const user = await User.findById(body.userId)
+  const decodificaToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  if (!decodificaToken.id) {
+    return res.status(401).json({ error: 'token invalido' })
+  }
+
+  const user = await User.findById(decodificaToken.id)
 
   const nota = new Nota({
     contenido: body.contenido, //generar el contenido y por la lógica lo hace obligatorio
