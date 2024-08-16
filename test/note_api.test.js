@@ -1,14 +1,14 @@
 const { test, after, beforeEach, describe } = require('node:test')
 const assert = require('node:assert')
-const bcrypt = require('bcrypt')
-const User = require('../models/usuario')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const api = supertest(app)
+const bcrypt = require('bcrypt')
 
 const helper = require('./test_helper')
 
+const User = require('../models/usuario')
 const Nota = require('../models/notas')
 
 describe('cuando inicialmente hay algunas notas guardadas', () => {
@@ -112,9 +112,9 @@ describe('cuando inicialmente hay un usuario en la base de datos', () => {
     const usersAtStart = await helper.usersInDb()
 
     const newUsuario = {
-      username: 'julito',
+      username: 'Julian',
       name: 'Julian Lobon',
-      password: 'averigualo',
+      password: 'averiguado',
     }
 
     await api
@@ -134,25 +134,26 @@ describe('cuando inicialmente hay un usuario en la base de datos', () => {
   test('la creación falla con el código de estado y el mensaje adecuados si el nombre de usuario ya está en uso', async () => {
     const usersAtStart = await helper.usersInDb()
 
-    const newUsario = {
+    const newUsuario = {
       username: 'root',
       name: 'Superuser',
-      password: 'averigualo',
+      password: 'averiguado',
     }
 
     const resultado = await api
       .post('/api/users')
-      .send(newUsario)
+      .send(newUsuario)
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
     const usersAtEnd = await helper.usersInDb()
-    assert(resultado.body.error.includes('se esperaba que `username` fuera unico'))
+    assert(resultado.body.error.includes('se esperaba que `username` fuera único'))
 
     assert.strictEqual(usersAtEnd.length, usersAtStart.length)
   })
 })
 
 after(async () => {
+  await User.deleteMany({})
   await mongoose.connection.close()
 })
