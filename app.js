@@ -32,6 +32,11 @@ app.use('/api/notas', notasRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 
+if (process.env.NODE_ENV === 'test') {
+  const testingRouter = require('./controllers/testing')
+  app.use('/api/testing', testingRouter)
+}
+
 app.use(middleware.puntoDesconocido)
 app.use(middleware.errorHandler) // este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
 
